@@ -5,7 +5,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="marc.arthurdummyrobot.MainActivity"
-    >
+    android:background="#9c9c9c"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="IP : "
+        android:id="@+id/textViewIp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Port :"
+        android:id="@+id/textViewPort" />
 
     <FrameLayout
         android:layout_width="250dp"
@@ -19,7 +34,6 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:id="@+id/imageView"
-            android:layout_gravity="center"
             android:src="@drawable/robot"/>
     </FrameLayout>
 </LinearLayout>

@@ -35,6 +35,7 @@ public class ArthurCommandByteBuilder {
         System.arraycopy( packet , 2 , payLoadLength , 0 , 4 );
         int payloadLength = ByteBuffer.wrap(payLoadLength).getInt();
         // PAYLOAD
+        payLoad = new byte[payloadLength];
         System.arraycopy(packet,6,payLoad,0,payloadLength);
 
         return payLoad;
