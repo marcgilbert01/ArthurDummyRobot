@@ -33,7 +33,13 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:id="@+id/imageView"
-            android:src="@drawable/robot"/>
+            android:background="@drawable/robot" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/textViewSpeech"
+            android:layout_gravity="center" />
     </FrameLayout>
 
     <Button

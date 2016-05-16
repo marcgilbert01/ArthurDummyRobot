@@ -45,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
     TextView textViewPort;
     Button buttonClose;
     ImageView imageViewPhoto;
+    TextView textViewSpeech;
+
     Camera camera;
 
     Handler handler;
@@ -61,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
         imageViewRobot.setY( 125-10 );
         imageViewRobot.setRotation(90);
 
+
         textViewIp   = (TextView) findViewById(R.id.textViewIp);
         textViewPort = (TextView) findViewById(R.id.textViewPort);
         buttonClose  = (Button) findViewById(R.id.buttonClose);
@@ -74,6 +77,9 @@ public class MainActivity extends AppCompatActivity {
 
         imageViewPhoto = (ImageView) findViewById(R.id.imageViewPhoto);
 
+        textViewSpeech = (TextView) findViewById(R.id.textViewSpeech);
+
+
         final ArthurEnvelopeBuilder arthurEnvelopeBuilder = new ArthurEnvelopeBuilder();
         final ArthurCommandByteBuilder arthurCommandByteBuilder = new ArthurCommandByteBuilder();
 
@@ -81,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         // do we have a camera?
+        /*
         int cameraId = 0;
         if (!getPackageManager()
                 .hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
@@ -95,13 +102,16 @@ public class MainActivity extends AppCompatActivity {
                 camera = Camera.open(cameraId);
             }
         }
-        takePhoto(null);
+        */
 
 
         new Thread(){
             @Override
             public void run() {
                 super.run();
+
+
+
 
 /*
                 move(10, new ActionCallBack() {
@@ -246,20 +256,22 @@ public class MainActivity extends AppCompatActivity {
 
 
                         // TAKE A PHOTO
-                        /*
                         if( instructionType==0x04 ){
 
                             takePhoto( new ActionCallBack() {
                                 @Override
                                 public void onActionCompleted() {
+                                }
+
+                                @Override
+                                public void onPhotoTaken(byte[] photo) {
 
                                     ArthurResponseByteBuilder arthurResponseByteBuilder = new ArthurResponseByteBuilder();
                                     arthurResponseByteBuilder.setClassType(arthurCommandByteBuilder.getClassType());
                                     arthurResponseByteBuilder.setInstructionType(arthurCommandByteBuilder.getInstructionType());
                                     byte success = 0x01;
                                     arthurResponseByteBuilder.setSuccess( success );
-                                    arthurCommandByteBuilder.setPayLoad(  )
-
+                                    arthurCommandByteBuilder.setPayLoad( photo );
 
                                     byte[] response = arthurResponseByteBuilder.buildPacket();
 
@@ -275,27 +287,57 @@ public class MainActivity extends AppCompatActivity {
 
                                 }
 
-                                @Override
-                                public void onPhotoTaken(Bitmap bitmap) {
-
-                                }
                             });
 
                         }
 
-*/
 
 
 
+                        // SPEAK
+                        if( instructionType==0x05 ){
+
+
+                            String speech = new String(arthurCommandByteBuilder.getPayLoad());
+
+                            speak( speech  ,  new ActionCallBack() {
+
+                                @Override
+                                public void onActionCompleted() {
+
+                                    ArthurResponseByteBuilder arthurResponseByteBuilder = new ArthurResponseByteBuilder();
+                                    arthurResponseByteBuilder.setClassType(arthurCommandByteBuilder.getClassType());
+                                    arthurResponseByteBuilder.setInstructionType(arthurCommandByteBuilder.getInstructionType());
+                                    byte success = 0x01;
+                                    arthurResponseByteBuilder.setSuccess( success );
+
+                                    byte[] response = arthurResponseByteBuilder.buildPacket();
+
+                                    arthurEnvelopeBuilder.setPayload( response );
+                                    byte[] envelope = arthurEnvelopeBuilder.buildPacket();
+
+                                    try {
+                                        outputStream.write( envelope );
+                                        socket.close();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+
+                                @Override
+                                public void onPhotoTaken(byte[] photo) {
 
 
 
+                                }
 
+                            });
 
-
-
+                        }
 
                     }
+
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }finally {
@@ -311,6 +353,45 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void speak(final String textToSpeak , final ActionCallBack actionCallBack) {
+
+
+        new Thread(){
+
+            @Override
+            public void run() {
+                super.run();
+
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        textViewSpeech.setText( textToSpeak );
+                    }
+                });
+
+                try {
+                    sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        textViewSpeech.setText( textToSpeak );
+                    }
+                });
+
+
+                actionCallBack.onActionCompleted();
+
+            }
+        }.start();
+
+
+    }
 
 
     private void move(int distance , final ActionCallBack actionCallBack) {
@@ -454,8 +535,49 @@ public class MainActivity extends AppCompatActivity {
     private void takePhoto(final ActionCallBack actionCallBack){
 
 
+        //imageViewRobot.setImageDrawable();
+
+        new Thread(){
+
+            @Override
+            public void run() {
+                super.run();
+
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        imageViewRobot.setBackground( getResources().getDrawable(R.drawable.flash ));
+                    }
+                });
 
 
+                try {
+                    sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        imageViewRobot.setBackground( getResources().getDrawable(R.drawable.robot) );
+                    }
+                });
+
+                actionCallBack.onPhotoTaken( new byte[10] );
+
+
+            }
+        }.start();
+
+
+
+
+
+
+/*
         camera.takePicture(
 
                 new Camera.ShutterCallback() {
@@ -479,11 +601,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
         );
-
-
-
-
-
+*/
 
     }
 
